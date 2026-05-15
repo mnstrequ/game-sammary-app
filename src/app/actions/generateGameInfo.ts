@@ -22,6 +22,7 @@ export async function generateGameInfo(title: string): Promise<GameInfoResponse>
 {
   "title": "ゲームの正式名称",
   "genre": "ゲームのジャンル",
+  "platforms": ["対応プラットフォーム1", "対応プラットフォーム2"],
   "clear_time": {
     "main": "メインストーリーの想定クリア時間（例: 30時間）",
     "complete": "やり込み要素を含めた想定クリア時間（例: 80時間）",
@@ -55,6 +56,7 @@ export async function generateGameInfo(title: string): Promise<GameInfoResponse>
 注意事項:
 - JSONのみを出力し、余計な説明やMarkdownのコードブロックを含めないでください。
 - 「${title}」というゲームが存在しない、あるいは情報が極端に少ない場合は、その旨を推測できる範囲で埋め、分からない項目は「情報なし」としてください。
+- platformsには、発売されたすべての主要なハードウェア（例: PS5, Switch, Steam, PSP, DS など）の配列を入れてください。
 - 必ず日本語で出力してください。
 `;
 

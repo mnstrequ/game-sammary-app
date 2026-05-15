@@ -1,19 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { GameInfoResponse } from "@/lib/types";
+import { useState, useEffect } from "react";
+import { GameInfoResponse, PlayStatus } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, Users, HelpCircle, ThumbsUp, EyeOff, Eye, Star } from "lucide-react";
+import { Clock, BookOpen, Users, HelpCircle, ThumbsUp, EyeOff, Eye, Star, Monitor } from "lucide-react";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { cn } from "@/lib/utils";
 
 export function GameResult({ data }: { data: GameInfoResponse }) {
   const [showSpoiler, setShowSpoiler] = useState(false);
-  const { isBookmarked, addBookmark, removeBookmark } = useBookmarks();
+  const { isBookmarked, addBookmark, removeBookmark, getBookmark, updateStatus, updateInfo } = useBookmarks();
   
   const bookmarked = isBookmarked(data.title);
+  const savedGame = getBookmark(data.title);
+
+  // If we open a result and it's already bookmarked but info is missing (e.g. from CSV import), update the info
+  useEffect(() => {
+    if (savedGame && !savedGame.info) {
+      updateInfo(data.title, data);
+    }
+  }, [savedGame, data, updateInfo]);
 
   const toggleBookmark = () => {
     if (bookmarked) {
@@ -21,6 +29,13 @@ export function GameResult({ data }: { data: GameInfoResponse }) {
     } else {
       addBookmark(data);
     }
+  };
+
+  const statusColors: Record<PlayStatus, string> = {
+    "未プレイ": "bg-secondary text-secondary-foreground",
+    "プレイ中": "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+    "クリア済": "bg-green-500/20 text-green-400 border border-green-500/30",
+    "途中リタイア": "bg-destructive/20 text-destructive border border-destructive/30"
   };
 
   return (
@@ -33,12 +48,38 @@ export function GameResult({ data }: { data: GameInfoResponse }) {
             size="icon"
             onClick={toggleBookmark}
             className={cn("rounded-full", bookmarked && "bg-primary/20")}
-            title={bookmarked ? "お気に入りから削除" : "お気に入りに追加"}
+            title={bookmarked ? "ライブラリから削除" : "ライブラリに追加"}
           >
             <Star className={cn("w-5 h-5", bookmarked ? "fill-primary text-primary" : "text-muted-foreground")} />
           </Button>
         </div>
         <p className="text-xl text-muted-foreground">{data.genre}</p>
+        
+        {/* Platforms */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Monitor className="w-4 h-4 text-primary" />
+          {data.platforms && data.platforms.map((p, i) => (
+            <span key={i} className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded border">
+              {p}
+            </span>
+          ))}
+        </div>
+
+        {/* Status Dropdown if bookmarked */}
+        {bookmarked && savedGame && (
+          <div className="mt-4">
+            <select
+              className={`text-sm px-3 py-1.5 rounded-md font-medium outline-none cursor-pointer ${statusColors[savedGame.status]}`}
+              value={savedGame.status}
+              onChange={(e) => updateStatus(savedGame.id, e.target.value as PlayStatus)}
+            >
+              <option value="未プレイ">未プレイ</option>
+              <option value="プレイ中">プレイ中</option>
+              <option value="クリア済">クリア済</option>
+              <option value="途中リタイア">途中リタイア</option>
+            </select>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

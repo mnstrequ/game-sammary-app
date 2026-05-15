@@ -65,14 +65,29 @@ export function CompareView() {
                 <h3 className="font-semibold border-b pb-2 text-foreground/80">クリア時間</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="text-muted-foreground">メイン:</div>
-                  <div className="font-medium text-right">{game.clear_time.main}</div>
+                  <div className="font-medium text-right">{game.info?.clear_time.main || "未取得"}</div>
                   <div className="text-muted-foreground">完全クリア:</div>
-                  <div className="font-medium text-right">{game.clear_time.complete}</div>
-                  {game.clear_time.dlc && game.clear_time.dlc !== "なし" && (
+                  <div className="font-medium text-right">{game.info?.clear_time.complete || "未取得"}</div>
+                  {game.info?.clear_time.dlc && game.info.clear_time.dlc !== "なし" && (
                     <>
                       <div className="text-muted-foreground">DLC:</div>
-                      <div className="font-medium text-right">{game.clear_time.dlc}</div>
+                      <div className="font-medium text-right">{game.info.clear_time.dlc}</div>
                     </>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-semibold border-b pb-2 text-foreground/80">ハード</h3>
+                <div className="flex flex-wrap gap-1 text-sm">
+                  {game.platforms && game.platforms.length > 0 ? (
+                    game.platforms.map((p, i) => (
+                      <span key={i} className="bg-muted text-muted-foreground px-2 py-0.5 rounded border">
+                        {p}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground">未定</span>
                   )}
                 </div>
               </div>
@@ -80,12 +95,15 @@ export function CompareView() {
               <div className="space-y-2">
                 <h3 className="font-semibold border-b pb-2 text-foreground/80">おすすめポイント</h3>
                 <ul className="space-y-3 text-sm">
-                  {game.recommend_points.slice(0, 3).map((point, idx) => (
+                  {game.info?.recommend_points.slice(0, 3).map((point, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                       <span className="leading-relaxed text-muted-foreground">{point}</span>
                     </li>
                   ))}
+                  {!game.info && (
+                    <span className="text-muted-foreground">詳細データがありません</span>
+                  )}
                 </ul>
               </div>
 

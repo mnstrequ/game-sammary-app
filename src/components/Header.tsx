@@ -10,7 +10,7 @@ export function Header() {
 
   const links = [
     { href: "/", label: "検索", icon: Gamepad2 },
-    { href: "/bookmarks", label: "お気に入り", icon: Star },
+    { href: "/bookmarks", label: "マイライブラリ", icon: Star },
     { href: "/compare", label: "比較", icon: Columns },
   ];
 
