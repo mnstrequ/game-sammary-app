@@ -2,18 +2,42 @@
 
 import { useState } from "react";
 import { GameInfoResponse } from "@/lib/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, Users, HelpCircle, ThumbsUp, EyeOff, Eye } from "lucide-react";
+import { Clock, BookOpen, Users, HelpCircle, ThumbsUp, EyeOff, Eye, Star } from "lucide-react";
+import { useBookmarks } from "@/hooks/useBookmarks";
+import { cn } from "@/lib/utils";
 
 export function GameResult({ data }: { data: GameInfoResponse }) {
   const [showSpoiler, setShowSpoiler] = useState(false);
+  const { isBookmarked, addBookmark, removeBookmark } = useBookmarks();
+  
+  const bookmarked = isBookmarked(data.title);
+
+  const toggleBookmark = () => {
+    if (bookmarked) {
+      removeBookmark(data.title);
+    } else {
+      addBookmark(data);
+    }
+  };
 
   return (
     <div className="w-full max-w-5xl space-y-8 animate-in fade-in zoom-in duration-500">
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-extrabold tracking-tight neon-glow">{data.title}</h1>
+      <div className="flex flex-col items-center text-center space-y-4">
+        <div className="flex items-center gap-4">
+          <h1 className="text-4xl font-extrabold tracking-tight neon-glow">{data.title}</h1>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleBookmark}
+            className={cn("rounded-full", bookmarked && "bg-primary/20")}
+            title={bookmarked ? "お気に入りから削除" : "お気に入りに追加"}
+          >
+            <Star className={cn("w-5 h-5", bookmarked ? "fill-primary text-primary" : "text-muted-foreground")} />
+          </Button>
+        </div>
         <p className="text-xl text-muted-foreground">{data.genre}</p>
       </div>
 
