@@ -18,6 +18,7 @@ export default function BookmarksPage() {
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<PlayStatus | "すべて">("すべて");
   const [platformFilter, setPlatformFilter] = useState<string>("すべて");
+  const [genreFilter, setGenreFilter] = useState<string>("すべて");
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [aiTheme, setAiTheme] = useState("レベル上げが楽しい");
   const [showPasteArea, setShowPasteArea] = useState(false);
@@ -39,6 +40,16 @@ export default function BookmarksPage() {
     return Array.from(platforms).sort();
   }, [bookmarks]);
 
+  const allGenres = useMemo(() => {
+    const genres = new Set<string>();
+    bookmarks.forEach(b => {
+      if (b.info?.genre) {
+        b.info.genre.split(/[,、]/).forEach(g => genres.add(g.trim()));
+      }
+    });
+    return Array.from(genres).filter(Boolean).sort();
+  }, [bookmarks]);
+
   // Extract hours from clear_time string (e.g. "30時間" -> 30)
   const parseHours = (timeStr?: string) => {
     if (!timeStr) return 9999;
@@ -50,6 +61,7 @@ export default function BookmarksPage() {
     let result = bookmarks.filter(b => {
       if (statusFilter !== "すべて" && b.status !== statusFilter) return false;
       if (platformFilter !== "すべて" && b.platforms.length > 0 && !b.platforms.includes(platformFilter)) return false;
+      if (genreFilter !== "すべて" && b.info?.genre && !b.info.genre.includes(genreFilter)) return false;
       return true;
     });
 
@@ -291,7 +303,7 @@ export default function BookmarksPage() {
               <Filter className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">ステータス:</span>
               <select 
-                className="bg-transparent border rounded p-1 text-sm focus:ring-primary"
+                className="bg-background text-foreground border rounded p-1 text-sm focus:ring-primary"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as PlayStatus | "すべて")}
               >
@@ -307,7 +319,7 @@ export default function BookmarksPage() {
               <Monitor className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">ハード:</span>
               <select 
-                className="bg-transparent border rounded p-1 text-sm focus:ring-primary max-w-[150px]"
+                className="bg-background text-foreground border rounded p-1 text-sm focus:ring-primary max-w-[150px]"
                 value={platformFilter}
                 onChange={(e) => setPlatformFilter(e.target.value)}
               >
@@ -317,10 +329,22 @@ export default function BookmarksPage() {
             </div>
 
             <div className="flex items-center gap-2 border-l pl-4">
+              <span className="text-sm font-medium">ジャンル:</span>
+              <select 
+                className="bg-background text-foreground border rounded p-1 text-sm focus:ring-primary max-w-[150px]"
+                value={genreFilter}
+                onChange={(e) => setGenreFilter(e.target.value)}
+              >
+                <option value="すべて">すべて</option>
+                {allGenres.map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 border-l pl-4">
               <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">並び替え:</span>
               <select 
-                className="bg-transparent border rounded p-1 text-sm focus:ring-primary"
+                className="bg-background text-foreground border rounded p-1 text-sm focus:ring-primary"
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as SortOption)}
               >
@@ -336,7 +360,7 @@ export default function BookmarksPage() {
           <div className="flex items-center gap-2 bg-primary/10 p-2 rounded border border-primary/20">
             <span className="text-sm font-bold text-primary">✨ AIソート:</span>
             <select 
-              className="bg-transparent border-b border-primary text-sm focus:outline-none"
+              className="bg-background text-foreground border border-primary/20 rounded p-1 text-sm focus:ring-primary"
               value={aiTheme}
               onChange={(e) => setAiTheme(e.target.value)}
             >
@@ -344,6 +368,8 @@ export default function BookmarksPage() {
               <option value="ストーリーで感動して泣ける">ストーリーで泣ける順</option>
               <option value="アクションの爽快感が強い">アクションの爽快感順</option>
               <option value="世界観が重厚でダーク">ダークファンタジー順</option>
+              <option value="隙間時間に最適">隙間時間に最適順</option>
+              <option value="じっくりやり込みたい">やり込みたい順</option>
             </select>
             <Button size="sm" onClick={handleAiSort} disabled={aiLoading}>
               {aiLoading && sortOption !== "ai_theme" ? <Loader2 className="w-3 h-3 animate-spin" /> : "実行"}
@@ -389,10 +415,10 @@ export default function BookmarksPage() {
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => updateStatus(game.id, e.target.value as PlayStatus)}
                     >
-                      <option value="未プレイ">未プレイ</option>
-                      <option value="プレイ中">プレイ中</option>
-                      <option value="クリア済">クリア済</option>
-                      <option value="途中リタイア">途中リタイア</option>
+                      <option value="未プレイ" className="bg-background text-foreground">未プレイ</option>
+                      <option value="プレイ中" className="bg-background text-foreground">プレイ中</option>
+                      <option value="クリア済" className="bg-background text-foreground">クリア済</option>
+                      <option value="途中リタイア" className="bg-background text-foreground">途中リタイア</option>
                     </select>
                   </div>
                 </CardHeader>

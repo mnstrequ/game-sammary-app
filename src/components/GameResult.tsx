@@ -73,10 +73,10 @@ export function GameResult({ data }: { data: GameInfoResponse }) {
               value={savedGame.status}
               onChange={(e) => updateStatus(savedGame.id, e.target.value as PlayStatus)}
             >
-              <option value="未プレイ">未プレイ</option>
-              <option value="プレイ中">プレイ中</option>
-              <option value="クリア済">クリア済</option>
-              <option value="途中リタイア">途中リタイア</option>
+              <option value="未プレイ" className="bg-background text-foreground">未プレイ</option>
+              <option value="プレイ中" className="bg-background text-foreground">プレイ中</option>
+              <option value="クリア済" className="bg-background text-foreground">クリア済</option>
+              <option value="途中リタイア" className="bg-background text-foreground">途中リタイア</option>
             </select>
           </div>
         )}
